@@ -153,29 +153,28 @@ def delete(id):
 
 @app.route('/update/<int:id>', methods=['GET', 'POST'])
 def update(id):
-
     item = User.query.get_or_404(id)
-    
-
-    if request.method =='POST':
+    if request.method == 'POST':
         
+        # Mandatory fields
         item.food = request.form['food']
         item.calories = request.form['calories']
-        item.fat = request.form['fat']
-        item.protein = request.form['protein']
-        item.carbs = request.form['carbs']
+        
+        # Optional fields
+        item.fat = request.form.get('fat', '')
+        item.protein = request.form.get('protein', '')
+        item.carbs = request.form.get('carbs', '')
 
         try:
             db.session.commit()
             return redirect('/')
-        
-        except:
-            return "an issue occured"
+        except Exception as e:
+            # Log the exception to have more info about the error
+            app.logger.error(f'Error during update: {e}')
+            return "An issue occurred"
 
     else:
         return render_template('update.html', item=item)
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
